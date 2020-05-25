@@ -19,7 +19,7 @@ const app = async () => {
       "View Employees",
       "Remove Employee",
       "Update Employee Role",
-      "Update Employee Manager"
+      "Update Employee Manager",
     ],
   });
 
@@ -112,9 +112,8 @@ const app = async () => {
         [first_name, last_name, role.id, manager.id]
       );
     }
-  }
-  else if (action === 'View Employees') {
-    let [ employees, ___ ] = await db.query(`
+  } else if (action === "View Employees") {
+    let [employees, ___] = await db.query(`
     SELECT employee.id
 		, employee.first_name
 		, employee.last_name
@@ -127,16 +126,37 @@ FROM employee
 INNER JOIN role ON employee.role_id = role.id 
 INNER JOIN department ON role.department_id = department.id 
 LEFT JOIN employee as employeeB on employeeB.id = employee.manager_id;
-    `)
-    console.table(employees)
-  }
-  else if (action === 'View Departments') {
+    `);
+    console.table(employees);
+  } else if (action === "View Departments") {
     let [departments, _] = await db.query(`SELECT * FROM department;`);
-    console.table(departments)
-  }
-  else if (action === 'View Roles') {
-    let [roles, _] = await db.query(`SELECT * FROM role;`)
-    console.table(roles)
+    console.table(departments);
+  } else if (action === "View Roles") {
+    let [roles, _] = await db.query(`SELECT * FROM role;`);
+    console.table(roles);
+  } else if (action === "Remove Employee") {
+    let [employees, _] = await db.query("SELECT * FROM employee");
+    let { rmEmployee } = await prompt({
+      type: "list",
+      name: "rmEmployee",
+      message: "Which employee would you like to remove?",
+      choices: employees.map(
+        (employee) => employee.first_name + " " + employee.last_name
+      ),
+    });
+    let employee = employees.find(
+      (employee) => {
+        return rmEmployee ===
+        (employee.first_name + " " + employee.last_name)
+      });
+    await db.query("DELETE from employee WHERE id = ?", [employee.id]);
+    console.log(
+      `Successfully removed employee ${
+        employee.first_name + " " + employee.last_name
+      }`
+    );
+  } else if (action === "Update Employee Role") {
+  } else if (action === "Update Employee Manager") {
   }
 };
 
