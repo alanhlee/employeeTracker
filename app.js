@@ -14,10 +14,12 @@ const app = async () => {
       "Add Department",
       "Add Role",
       "Add Employee",
-      "View Departments,",
+      "View Departments",
       "View Roles",
       "View Employees",
-      "Update Employee Roles",
+      "Remove Employee",
+      "Update Employee Role",
+      "Update Employee Manager"
     ],
   });
 
@@ -68,7 +70,7 @@ const app = async () => {
     console.log(
       `Successfully added ${roleTitle} to ${department.name} department`
     );
-  } else if (action == "Add Employee") {
+  } else if (action === "Add Employee") {
     let { first_name } = await prompt({
       type: "input",
       name: "first_name",
@@ -110,6 +112,31 @@ const app = async () => {
         [first_name, last_name, role.id, manager.id]
       );
     }
+  }
+  else if (action === 'View Employees') {
+    let [ employees, ___ ] = await db.query(`
+    SELECT employee.id
+		, employee.first_name
+		, employee.last_name
+		, role.title
+		, department.name as department
+        , role.salary
+        , concat(employeeB.first_name, ' '
+        , employeeB.last_name) as manager 
+FROM employee 
+INNER JOIN role ON employee.role_id = role.id 
+INNER JOIN department ON role.department_id = department.id 
+LEFT JOIN employee as employeeB on employeeB.id = employee.manager_id;
+    `)
+    console.table(employees)
+  }
+  else if (action === 'View Departments') {
+    let [departments, _] = await db.query(`SELECT * FROM department;`);
+    console.table(departments)
+  }
+  else if (action === 'View Roles') {
+    let [roles, _] = await db.query(`SELECT * FROM role;`)
+    console.table(roles)
   }
 };
 
