@@ -25,7 +25,7 @@ const app = async () => {
   });
 
   if (action === "Add Department") {
-    // if you want to do something with result from promise always await (90% time)
+    // if you want to do something with result from promise always await
     let { depName } = await prompt({
       type: "input",
       name: "depName",
@@ -50,6 +50,7 @@ const app = async () => {
       message: "What is the salary for this role?",
     });
     // assigning variable to array returned from db.query
+    // destructuring the array handed to to us by db.query giving second value an _ because we only care about the first thing given to us
     let [departments, _] = await db.query("SELECT name, id FROM department");
 
     let { depRoleName } = await prompt({
