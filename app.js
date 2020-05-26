@@ -248,6 +248,8 @@ LEFT JOIN employee as employeeB on employeeB.id = employee.manager_id WHERE empl
     `, [manager.id]);
     console.table(employees);
   }
+
+  app()
 };
 
 // how to catch ALL errors within the function with TRY CATCH using ASYNC/AWAIT
