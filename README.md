@@ -9,3 +9,4 @@ Technologies Used:
 - mysql2 js
 - inquirer js
 - console.table js
+- MySQL
