@@ -156,6 +156,32 @@ LEFT JOIN employee as employeeB on employeeB.id = employee.manager_id;
       }`
     );
   } else if (action === "Update Employee Role") {
+    let [employees, _] = await db.query("SELECT * FROM employee");
+    let { employeeToUpdate } = await prompt({
+      type: "list",
+      name: "employeeToUpdate",
+      message: "Which employee would you like to update the role for?",
+      choices: employees.map(
+        (employee) => employee.first_name + " " + employee.last_name
+      ),
+    });
+    let employee = employees.find((employee) => {
+      return employeeToUpdate === employee.first_name + " " + employee.last_name;
+    });
+    let [roles, __] = await db.query("SELECT * FROM role");
+    let { newRole } = await prompt({
+      type: 'list',
+      name: 'newRole',
+      message: 'What is the new role for the employee?',
+      choices: roles.map(role => role.title)
+    })
+    let role = roles.find((role) => role.title === newRole)
+    await db.query("UPDATE employee SET role_id = ? WHERE id = ?", [role.id, employee.id]);
+    console.log(
+      `Successfully updated employee role for ${
+        employee.first_name + " " + employee.last_name
+      } to ${newRole}` 
+    );
   } else if (action === "Update Employee Manager") {
   }
 };
