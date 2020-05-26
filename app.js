@@ -17,6 +17,7 @@ const app = async () => {
       "View Departments",
       "View Roles",
       "View Employees",
+      "View Employees by Manager",
       "Remove Employee",
       "Update Employee Role",
       "Update Employee Manager",
@@ -183,6 +184,69 @@ LEFT JOIN employee as employeeB on employeeB.id = employee.manager_id;
       } to ${newRole}` 
     );
   } else if (action === "Update Employee Manager") {
+    let [employees, _] = await db.query("SELECT * FROM employee");
+    let { employeeToUpdate } = await prompt({
+      type: "list",
+      name: "employeeToUpdate",
+      message: "Which employee would you like to update the role for?",
+      choices: employees.map(
+        (employee) => employee.first_name + " " + employee.last_name
+      ),
+    });
+    let employee = employees.find((employee) => {
+      return (
+        employeeToUpdate === employee.first_name + " " + employee.last_name
+      );
+    });
+    let [managers, __] = await db.query("SELECT * FROM employee");
+    let { newManager } = await prompt({
+      type: "list",
+      name: "newManager",
+      message: "Who is the new manager for the employee?",
+      choices: managers.map(
+        (manager) => manager.first_name + " " + manager.last_name
+      ),
+    });
+    let manager = managers.find(
+      (manager) => newManager === manager.first_name + " " + manager.last_name
+    );
+    await db.query("UPDATE employee SET manager_id = ? WHERE id = ?", [
+      manager.id,
+      employee.id,
+    ]);
+    console.log(
+      `Successfully updated employee manager for ${
+        employee.first_name + " " + employee.last_name
+      } to ${newManager}`
+    );
+  } else if (action === 'View Employees by Manager') {
+    let [managers, __] = await db.query("SELECT * FROM employee");
+    let { managerName } = await prompt({
+      type: "list",
+      name: "managerName",
+      message: "Which manager's employees do you want to view?",
+      choices: managers.map(
+        (manager) => manager.first_name + " " + manager.last_name
+      ),
+    });
+    let manager = managers.find(
+      (manager) => managerName === manager.first_name + " " + manager.last_name
+    );
+    let [employees, ___] = await db.query(`
+    SELECT employee.id
+		, employee.first_name
+		, employee.last_name
+		, role.title
+		, department.name as department
+        , role.salary
+        , concat(employeeB.first_name, ' '
+        , employeeB.last_name) as manager 
+FROM employee 
+INNER JOIN role ON employee.role_id = role.id 
+INNER JOIN department ON role.department_id = department.id 
+LEFT JOIN employee as employeeB on employeeB.id = employee.manager_id WHERE employee.manager_id = ?;
+    `, [manager.id]);
+    console.table(employees);
   }
 };
 
